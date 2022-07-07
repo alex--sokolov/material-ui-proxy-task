@@ -14,14 +14,11 @@ import {
 import { IAddNewRow } from '../interfaces';
 import ClientIdField from './ClientIdField';
 import ClientNameField from './ClientNameField';
+import RelationToTheCompanyField from './RelationToTheCompanyField';
 
 const AddNewRow = (props: IAddNewRow) => {
   const { lastId, clientIds, handleClose } = props;
 
-  const { loading, error, data } = useQuery(LOAD_COMPANY_RELATIONS);
-  useEffect(() => {
-    console.log('data', data);
-  }, [data]);
   // const { loading, error, data } = useQuery(FILTER_BY_COMPANY_POSITIONS);
   // useEffect(() => {
   //
@@ -56,6 +53,10 @@ const AddNewRow = (props: IAddNewRow) => {
 
   const changeClientName = (client: string) => {
     setValues({ ...values, client});
+  };
+
+  const changeRelationToTheCompany = (companyRelation: string) => {
+    setValues({ ...values, companyRelation});
   };
 
   const isIndividual = () => values.entity === 'Individual';
@@ -108,8 +109,9 @@ const AddNewRow = (props: IAddNewRow) => {
                     <ClientIdField lastId={lastId} clientIds={clientIds} changeClientId={changeClientId}/>
                   </Grid>
                   <ClientNameField isIndividual={isIndividual()} changeClientName={changeClientName}/>
-
-
+                  <Grid item>
+                    <RelationToTheCompanyField changeRelationToTheCompany={changeRelationToTheCompany}/>
+                  </Grid>
                   <Grid item>
                     <Stack direction="row" spacing={5} justifyContent="space-between">
                       <Button variant="outlined" onClick={handleClose}>

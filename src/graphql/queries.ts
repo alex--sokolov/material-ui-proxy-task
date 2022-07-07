@@ -9,6 +9,7 @@ import { gql } from '@apollo/client';
 //     }`;
 
 
+
 export const LOAD_COMPANY_RELATIONS = gql`
     query {
       applicantIndividualCompanyRelations {
