@@ -62,6 +62,7 @@ const ClientIdField = (props: any) => {
           {...params}
           label="ClientId"
           required
+          size="small"
           onChange={(e) => {
             const value = Number(e.target.value);
             if (isValid(value)){

@@ -13,6 +13,7 @@ import {
 
 import { IAddNewRow } from '../interfaces';
 import ClientIdField from './ClientIdField';
+import ClientNameField from './ClientNameField';
 
 const AddNewRow = (props: IAddNewRow) => {
   const { lastId, clientIds, handleClose } = props;
@@ -53,6 +54,12 @@ const AddNewRow = (props: IAddNewRow) => {
     setValues({ ...values, id });
   };
 
+  const changeClientName = (client: string) => {
+    setValues({ ...values, client});
+  };
+
+  const isIndividual = () => values.entity === 'Individual';
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
   };
@@ -76,7 +83,7 @@ const AddNewRow = (props: IAddNewRow) => {
         >
           <Paper elevation={2} sx={{ padding: 5, marginTop: 5 }}>
             <form onSubmit={handleSubmit}>
-              <FormControl fullWidth>
+              <FormControl fullWidth size="small">
                 <Grid container direction="column" spacing={2}>
                   <Grid item>
                     <InputLabel id="select-entity">Entity</InputLabel>
@@ -84,6 +91,7 @@ const AddNewRow = (props: IAddNewRow) => {
                       labelId="select-entity"
                       id="select-entity"
                       fullWidth
+                      style={{height: '40px'}}
                       value={values.entity}
                       label="Entity"
                       required
@@ -99,27 +107,8 @@ const AddNewRow = (props: IAddNewRow) => {
                   <Grid item>
                     <ClientIdField lastId={lastId} clientIds={clientIds} changeClientId={changeClientId}/>
                   </Grid>
+                  <ClientNameField isIndividual={isIndividual()} changeClientName={changeClientName}/>
 
-                  <Grid item>
-                    <TextField
-                      label="First name"
-                      required
-                    />
-                  </Grid>
-
-                  <Grid item>
-                    <TextField
-                      label="Last name"
-                      required
-                    />
-                  </Grid>
-
-                  <Grid item>
-                    <TextField
-                      label="Company name"
-                      required
-                    />
-                  </Grid>
 
                   <Grid item>
                     <Stack direction="row" spacing={5} justifyContent="space-between">
