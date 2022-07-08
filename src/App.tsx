@@ -1,31 +1,51 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { ApolloClient, createHttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 import './App.css';
 import { setContext } from '@apollo/client/link/context';
 import TableComponent from './components/TableComponent';
+import axios from 'axios';
 
-// const token = localStorage.getItem('token');
-const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xNTIuMjI4LjIxNS45NFwvYXV0aFwvbG9naW4iLCJpYXQiOjE2NTcxMDYxNTQsImV4cCI6MTY1OTY5ODE1NCwibmJmIjoxNjU3MTA2MTU0LCJqdGkiOiJIaGNWVzFmN21NeFZ4QnNCIiwic3ViIjoyLCJwcnYiOiJjYjc4YjVlMWZmY2UwZjgzMWQwMjMxZGYyYzhiZDdjODA2NDc3NzYyIn0.p2zd9vcIXWm9eaSohi5m1Qk2uBzLiKObsuC8t4fnfS0';
+const EMAIL='test@test.com';
+const PASSWORD='1234567Qa';
 
-const httpLink = createHttpLink({
-  uri: '/api',
-});
-const authLink = setContext((_, { headers }) => {
-  return {
-    headers: {
-      ...headers,
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '',
-    }
-  };
-});
 
-const client = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
-});
+
 
 function App() {
+
+
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
+  const getToken = async () => {
+    const { data } =  await axios.post(
+      '/auth/login',
+      { email: EMAIL, password: PASSWORD }
+    )
+    localStorage.setItem('token',data.access_token);
+    setToken(data.access_token);
+  };
+
+  useEffect(() => {if (!token) getToken()}, [token]);
+
+  console.log(token);
+  const httpLink = createHttpLink({
+    uri: '/api',
+  });
+  const authLink = setContext((_, { headers }) => {
+    return {
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      }
+    };
+  });
+
+  const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache(),
+  });
+
   return (
     <ApolloProvider client={client}>
       <TableComponent/>

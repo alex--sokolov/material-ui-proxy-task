@@ -1,72 +1,70 @@
-import { useQuery } from '@apollo/client';
-import { LOAD_COMPANY_RELATIONS } from '../graphql/queries';
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import {
   Typography,
   Container,
   Button,
   Grid,
   Paper,
-  TextField,
-  Select, MenuItem, SelectChangeEvent, InputLabel, FormControl, Stack
+  Select,
+  MenuItem,
+  FormControl,
+  Stack,
+  SelectChangeEvent,
+  InputLabel
 } from '@mui/material';
 
-import { IAddNewRow } from '../interfaces';
+import { Entity, IAddNewRow, IForm, ITableRow } from '../interfaces';
 import ClientIdField from './ClientIdField';
 import ClientNameField from './ClientNameField';
-import RelationToTheCompanyField from './RelationToTheCompanyField';
+import RelationField from './RelationField';
 
 const AddNewRow = (props: IAddNewRow) => {
-  const { lastId, clientIds, handleClose } = props;
 
-  // const { loading, error, data } = useQuery(FILTER_BY_COMPANY_POSITIONS);
-  // useEffect(() => {
-  //
-  //
-  //   console.log('data', data);
-  // }, [data]);
+  const { lastId, clientIds, handleClose, rowsState, setRowsState} = props;
 
-  // const { loading, error, data } = useQuery(LOAD_INDIVIDUAL_POSITIONS);
-  // useEffect(() => {
-  //
-  //
-  //   console.log('data', data);
-  // }, [data]);
-
-  // const [entity, setEntity] = useState('Individual');
-
-
-  const [values, setValues] = useState({
-    entity: 'Individual',
+  const [values, setValues] = useState<IForm>({
+    entity: Entity.Individual,
     id: lastId + 1,
     client: '',
-    companyPosition: '',
-    companyRelation: '',
+    companyPositionRelation: '',
   });
 
-  const changeEntity = (e: SelectChangeEvent<string>) => {
-    setValues({ ...values, entity: e.target.value });
+  const changeEntity = (entity: Entity):void => {
+    setValues({ ...values, entity });
   };
-  const changeClientId = (id: number) => {
+
+  const changeClientId = (id: number):void => {
     setValues({ ...values, id });
   };
 
-  const changeClientName = (client: string) => {
+  const changeClientName = (client: string):void => {
     setValues({ ...values, client});
   };
 
-  const changeRelationToTheCompany = (companyRelation: string) => {
-    setValues({ ...values, companyRelation});
+  const changeRelationToTheCompany = (companyPositionRelation: string):void => {
+    setValues({ ...values, companyPositionRelation});
   };
 
-  const isIndividual = () => values.entity === 'Individual';
+  const isIndividual = ():boolean => values.entity === Entity.Individual;
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-  };
+  const isUnique = (arr:ITableRow[] , id: number) => arr.filter(x => x.id === id).length === 0;
 
-  const handleClientId = (e: any) => {
+  const customValidator = (fields: ITableRow): { result: ITableRow | null, error: string | null } => {
+    return isUnique(rowsState, Number(fields.id))
+            ? {result: fields, error: null}
+            : {result: null, error: 'Id is not unique!'}
+  }
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>):void => {
     e.preventDefault();
+    const {result, error} = customValidator(values);
+    if (result) {
+      setRowsState([...rowsState, result]);
+      handleClose();
+    }
+    if (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -83,9 +81,9 @@ const AddNewRow = (props: IAddNewRow) => {
           style={{ minHeight: '50vh' }}
         >
           <Paper elevation={2} sx={{ padding: 5, marginTop: 5 }}>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{maxWidth: '320px'}}>
               <FormControl fullWidth size="small">
-                <Grid container direction="column" spacing={2}>
+                <Grid container direction="column" spacing={2} style={{height: '300px'}}>
                   <Grid item>
                     <InputLabel id="select-entity">Entity</InputLabel>
                     <Select
@@ -96,32 +94,31 @@ const AddNewRow = (props: IAddNewRow) => {
                       value={values.entity}
                       label="Entity"
                       required
-                      onChange={(e: SelectChangeEvent<string>) => {
-                        changeEntity(e);
+                      onChange={(e: SelectChangeEvent) => {
+                        changeEntity(e.target.value as Entity);
                       }}
                     >
-                      <MenuItem value="Individual">Individual</MenuItem>
-                      <MenuItem value="Company">Company</MenuItem>
+                      <MenuItem value={Entity.Individual}>{Entity.Individual}</MenuItem>
+                      <MenuItem value={Entity.Company}>{Entity.Company}</MenuItem>
                     </Select>
                   </Grid>
-
                   <Grid item>
                     <ClientIdField lastId={lastId} clientIds={clientIds} changeClientId={changeClientId}/>
                   </Grid>
                   <ClientNameField isIndividual={isIndividual()} changeClientName={changeClientName}/>
                   <Grid item>
-                    <RelationToTheCompanyField changeRelationToTheCompany={changeRelationToTheCompany}/>
+                    <RelationField isIndividual={isIndividual()} changeEntity={changeRelationToTheCompany}/>
                   </Grid>
-                  <Grid item>
-                    <Stack direction="row" spacing={5} justifyContent="space-between">
-                      <Button variant="outlined" onClick={handleClose}>
-                        Cancel
-                      </Button>
-                      <Button type="submit" variant="contained">
-                        Add
-                      </Button>
-                    </Stack>
-                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Stack direction="row" spacing={5} justifyContent="space-between">
+                    <Button variant="outlined" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="contained">
+                      Add
+                    </Button>
+                  </Stack>
                 </Grid>
               </FormControl>
               <pre>{JSON.stringify(values, null, 2)}</pre>
@@ -134,103 +131,3 @@ const AddNewRow = (props: IAddNewRow) => {
 };
 
 export default AddNewRow;
-
-
-// return (
-//   <div>
-//     <Typography id="modal-modal-title" variant="h6" component="h2">
-//       Add new client
-//     </Typography>
-//     <Form
-//       onSubmit={onSubmit}
-//       validate={validate}
-//       render={({ form, handleSubmit, submitting, pristine, values }) => (
-//         <form onSubmit={handleSubmit} noValidate>
-//           <FormSpy
-//             subscription={{ values: true }}
-//             onChange={({ values }) => {
-//               let needReset = false;
-//               const next = { ...values };
-//
-//               // reset city field value when country changes
-//               if (values.country !== valuesRef.current.country) {
-//                 next.city = null;
-//                 needReset = true;
-//               }
-//               if (needReset) {
-//                 // update form without triggering validation
-//                 form.reset(next);
-//               }
-//
-//               // update ref
-//               valuesRef.current = values;
-//             }}
-//           />
-//
-//           <Paper style={{ padding: 16 }}>
-//             <Grid container alignItems="flex-start" spacing={8}>
-//               <Grid item xs={12}>
-//                 <Field
-//                   fullWidth
-//                   name="notes"
-//                   component={TextField}
-//                   multiline
-//                   label="Notes"
-//                 />
-//               </Grid>
-//               <Grid item xs={12}>
-//                 <Field
-//                   fullWidth
-//                   name="country"
-//                   component={Select}
-//                   label="Select a Country"
-//                   formControlProps={{ fullWidth: true }}
-//                 >
-//                   <MenuItem value="France">France</MenuItem>
-//                   <MenuItem value="Hungary">Hungary</MenuItem>
-//                   <MenuItem value="Germany">Germany</MenuItem>
-//                 </Field>
-//               </Grid>
-//               <Grid item xs={12}>
-//                 <Field
-//                   fullWidth
-//                   name="city"
-//                   component={Select}
-//                   label="Select a City"
-//                   formControlProps={{ fullWidth: true }}
-//                 >
-//                   <MenuItem value="London">London</MenuItem>
-//                   <MenuItem value="Paris">Paris</MenuItem>
-//                   <MenuItem value="Budapest">Budapest</MenuItem>
-//                 </Field>
-//               </Grid>
-//               <Grid item style={{ marginTop: 16 }}>
-//                 <Button
-//                   type="button"
-//                   variant="contained"
-//                   onClick={form.reset}
-//                   disabled={submitting || pristine}
-//                 >
-//                   Reset
-//                 </Button>
-//               </Grid>
-//               <Grid item style={{ marginTop: 16 }}>
-//                 <Button
-//                   variant="contained"
-//                   color="primary"
-//                   type="submit"
-//                   disabled={submitting}
-//                 >
-//                   Submit
-//                 </Button>
-//               </Grid>
-//             </Grid>
-//           </Paper>
-//
-//           <pre>{JSON.stringify(values, 0, 2)}</pre>
-//         </form>
-//       )}
-//     />
-//   </div>
-// )
-

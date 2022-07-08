@@ -1,14 +1,12 @@
 import { Grid, TextField } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import { IClientNameField, IClientNameState } from '../interfaces';
 
-const ClientNameField = (props: any) => {
+const ClientNameField = (props: IClientNameField) => {
 
   const { isIndividual, changeClientName } = props;
 
-
-  const nameRegex = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/;
-
-  const [clientName, setFullName] = useState({
+  const [clientName, setFullName] = useState<IClientNameState>({
       firstName: '',
       lastName: '',
       companyName: ''
@@ -22,25 +20,21 @@ const ClientNameField = (props: any) => {
               ?`${clientName.firstName} ${clientName.lastName}`
               : clientName.firstName
           : clientName.lastName
-      : clientName.companyName
+      : clientName.companyName;
     changeClientName(client);
   }, [clientName.firstName, clientName.lastName, clientName.companyName, isIndividual]);
 
-  const errorText = 'Invalid input';
-
   if (isIndividual) {
     return (
-      <>
+        <>
         <Grid item>
           <TextField
             label="First name"
             required
             fullWidth
-            // error={true}
             name="firstName"
             size="small"
             value={clientName.firstName}
-            // helperText={errorText}
             onChange={(e) => setFullName({...clientName, firstName: e.target.value})}
           />
         </Grid>
