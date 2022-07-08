@@ -30,6 +30,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "homepage" : "https://alex--sokolov.github.io/material-ui-proxy-task/",
   "eslintConfig": {
     "extends": [
       "react-app",

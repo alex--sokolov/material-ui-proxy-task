@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 export enum Entity {
   Individual = 'Individual',
   Company = 'Company',

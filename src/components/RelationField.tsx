@@ -42,8 +42,7 @@ const RelationField = (props: any) => {
 
   const [dialogValue, setDialogValue] = useState({ title: '' });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = () => {
     if(variants.filter(variant => (variant.title === dialogValue.title)).length === 0) {
       setVariants([...variants, { title: dialogValue.title }]);
     }
@@ -102,6 +101,8 @@ const RelationField = (props: any) => {
       );
     });
   };
+
+  console.log('value', value);
 
   return (
     <>
@@ -163,7 +164,11 @@ const RelationField = (props: any) => {
         renderInput={(params) => <TextField {...params} label={entity.title}/>}
       />
       <Dialog open={open} onClose={handleClose}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          handleSubmit();
+        }}>
           <DialogTitle>Add a new {entity.name}</DialogTitle>
           <DialogContent>
             {showFiltered(filteredOnOpen)}
