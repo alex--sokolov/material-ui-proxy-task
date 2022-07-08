@@ -8,9 +8,6 @@ import axios from 'axios';
 const EMAIL='test@test.com';
 const PASSWORD='1234567Qa';
 
-
-
-
 function App() {
 
 
@@ -18,7 +15,7 @@ function App() {
 
   const getToken = async () => {
     const { data } =  await axios.post(
-      '/auth/login',
+      'https://fierce-shore-62560.herokuapp.com/http://152.228.215.94:81/auth/login',
       { email: EMAIL, password: PASSWORD }
     )
     localStorage.setItem('token',data.access_token);
@@ -29,7 +26,7 @@ function App() {
 
   console.log(token);
   const httpLink = createHttpLink({
-    uri: '/api',
+    uri: 'https://fierce-shore-62560.herokuapp.com/http://152.228.215.94:81/api',
   });
   const authLink = setContext((_, { headers }) => {
     return {
