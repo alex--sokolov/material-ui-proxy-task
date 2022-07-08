@@ -1,25 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState, useEffect} from 'react';
+import { ApolloClient, createHttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 import './App.css';
+import { setContext } from '@apollo/client/link/context';
+import TableComponent from './components/TableComponent';
+import axios from 'axios';
+
+const EMAIL='test@test.com';
+const PASSWORD='1234567Qa';
 
 function App() {
+
+
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
+  const getToken = async () => {
+    const { data } =  await axios.post(
+      'https://fierce-shore-62560.herokuapp.com/http://152.228.215.94:81/auth/login',
+      { email: EMAIL, password: PASSWORD }
+    )
+    localStorage.setItem('token',data.access_token);
+    setToken(data.access_token);
+  };
+
+  useEffect(() => {if (!token) getToken()}, [token]);
+
+  console.log(token);
+  const httpLink = createHttpLink({
+    uri: 'https://fierce-shore-62560.herokuapp.com/http://152.228.215.94:81/api',
+  });
+  const authLink = setContext((_, { headers }) => {
+    return {
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : '',
+      }
+    };
+  });
+
+  const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache(),
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ApolloProvider client={client}>
+      <TableComponent/>
+    </ApolloProvider>
   );
 }
 
