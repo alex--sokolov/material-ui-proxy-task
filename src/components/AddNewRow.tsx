@@ -55,7 +55,7 @@ const AddNewRow = (props: IAddNewRow) => {
             : {result: null, error: 'Id is not unique!'}
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>):void => {
+  const handleSubmitNewRow = (e: FormEvent<HTMLFormElement>):void => {
     e.preventDefault();
     const {result, error} = customValidator(values);
     if (result) {
@@ -81,7 +81,7 @@ const AddNewRow = (props: IAddNewRow) => {
           style={{ minHeight: '50vh' }}
         >
           <Paper elevation={2} sx={{ padding: 5, marginTop: 5 }}>
-            <form onSubmit={handleSubmit} style={{maxWidth: '320px'}}>
+            <form onSubmit={handleSubmitNewRow} style={{maxWidth: '320px'}}>
               <FormControl fullWidth size="small">
                 <Grid container direction="column" spacing={2} style={{height: '300px'}}>
                   <Grid item>
